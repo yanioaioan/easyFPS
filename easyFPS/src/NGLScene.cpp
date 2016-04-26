@@ -18,6 +18,8 @@ const static float INCREMENT=0.01f;
 //----------------------------------------------------------------------------------------------------------------------
 const static float ZOOM=0.1f;
 
+//http://www.opengl-tutorial.org/beginners-tutorials/tutorial-6-keyboard-and-mouse/ adapted
+
 NGLScene::NGLScene()
 {
   // re-size the widget to that of the parent (in that case the GLFrame passed in on construction)
@@ -134,13 +136,16 @@ void NGLScene::loadMatricesToShader()
   ngl::Mat4 MVP;
   ngl::Mat3 normalMatrix;
   ngl::Mat4 M;
+  ngl::Mat4 P;
 
   m_trans.setPosition(0,0,0);
   M=/*m_mouseGlobalTX**/m_trans.getMatrix();
 
   m_cam.set(position, position+ direction, up);
+
   MV=  M*m_cam.getViewMatrix();
-  MVP= M*m_cam.getVPMatrix();
+//  P=ngl::perspective(Fov, static_cast<float>(720.0f/576.0f) ,0.05f, 350.0f);
+  MVP= MV*m_cam.getVPMatrix();
   normalMatrix=MV;
   normalMatrix.inverse();
   shader->setShaderParamFromMat4("MV",MV);
@@ -172,7 +177,7 @@ void NGLScene::paintGL()
   direction.set( cos(verticalAngle) * sin(horizontalAngle), sin(verticalAngle),    cos(verticalAngle) * cos(horizontalAngle) );
 
 
-  right.set( sin(horizontalAngle - 3.14f/2.0f), 0,  cos(horizontalAngle - 3.14f/2.0f) );
+  right.set( sin(horizontalAngle - M_PI_2), 0,  cos(horizontalAngle - M_PI_2) );
   // Up vector : perpendicular to both direction and right
   up =  right.cross( direction );
 
@@ -293,12 +298,16 @@ void NGLScene::wheelEvent(QWheelEvent *_event)
 	// check the diff of the wheel position (0 means no change)
 	if(_event->delta() > 0)
 	{
-		m_modelPos.m_z+=ZOOM;
+		m_modelPos.m_z+=ZOOM;        
+
 	}
 	else if(_event->delta() <0 )
 	{
 		m_modelPos.m_z-=ZOOM;
 	}
+
+    Fov = initialFoV - 5 * _event->delta();
+
 	update();
 }
 //----------------------------------------------------------------------------------------------------------------------
@@ -320,7 +329,6 @@ void NGLScene::keyPressEvent(QKeyEvent *_event)
   case Qt::Key_A : position += right * deltaTime * speed; break;
   // turn off wire frame
   case Qt::Key_D : position -= right * deltaTime * speed; break;
-
 
 
   // show full screen

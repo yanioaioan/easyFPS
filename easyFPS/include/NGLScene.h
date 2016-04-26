@@ -151,7 +151,7 @@ private:
     // Initial Field of View
     float initialFoV = 45.0f;
 
-    float speed = 3.0f; // 3 units / second
+    float speed = 0.01; // 3 units / second
     float mouseSpeed = 0.005f;
 
     QTime currentTime;
@@ -169,6 +169,9 @@ private:
 
     //up vector
      ngl::Vec3 up;
+
+     //cheep zoom
+     float Fov;
 
 };
 
